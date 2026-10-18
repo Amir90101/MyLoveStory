@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Для тебя</title>
+<meta name="theme-color" content="#0b0610">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=Marck+Script&display=swap" rel="stylesheet">
+<style>
+  /* ============ ДИЗАЙН-ТОКЕНЫ ============ */
+  :root {
+    --bg: #0b0610;
+    --bg-2: #160a1c;
+    --rose: #f472b6;
+    --rose-soft: #fda4af;
+    --wine: #be185d;
+    --gold: #f5c977;
+    --text: #fdf2f8;
+    --text-muted: #e8cfe0;
+    --glass: rgba(30, 12, 34, 0.55);
+    --glass-border: rgba(253, 164, 175, 0.18);
+    --font-serif: "Cormorant Garamond", Georgia, serif;
+    --font-script: "Marck Script", "Cormorant Garamond", cursive;
+    --ease-out: cubic-bezier(.22, 1, .36, 1);
+    --space-1: 8px; --space-2: 16px; --space-3: 24px; --space-4: 40px; --space-5: 64px; --space-6: 96px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-serif);
+    font-size: 18px;
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  body.locked { overflow: hidden; }
+  ::selection { background: var(--wine); color: var(--text); }
+
+  /* ============ ФОН: северное сияние в розовых тонах ============ */
+  .aurora { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+    background: radial-gradient(120% 90% at 50% 110%, #2a0d2a 0%, var(--bg) 60%); }
+  .aurora i { position: absolute; width: 70vmax; height: 70vmax; border-radius: 50%; opacity: .55; mix-blend-mode: screen; will-change: transform; }
+  .aurora i:nth-child(1) { background: radial-gradient(circle, rgba(190,24,93,.55), transparent 62%); top: -25vmax; left: -15vmax; animation: drift1 22s ease-in-out infinite alternate; }
+  .aurora i:nth-child(2) { background: radial-gradient(circle, rgba(244,114,182,.35), transparent 60%); bottom: -30vmax; right: -20vmax; animation: drift2 26s ease-in-out infinite alternate; }
+  .aurora i:nth-child(3) { background: radial-gradient(circle, rgba(245,201,119,.18), transparent 60%); top: 30%; left: 35%; width: 50vmax; height: 50vmax; animation: drift3 30s ease-in-out infinite alternate; }
+  @keyframes drift1 { to { transform: translate(18vmax, 14vmax) scale(1.15); } }
+  @keyframes drift2 { to { transform: translate(-16vmax, -12vmax) scale(1.2); } }
+  @keyframes drift3 { to { transform: translate(-20vmax, 10vmax) scale(.85); } }
+
+  #fx { position: fixed; inset: 0; z-index: 1; width: 100%; height: 100%; pointer-events: none; }
+
+  /* ============ ЛЕТАЮЩИЕ СЛОВА ============ */
+  #words { position: fixed; inset: 0; z-index: 2; overflow: hidden; }
+  .word {
+    position: absolute; top: 0; left: 0;
+    white-space: nowrap; user-select: none; cursor: pointer;
+    font-family: var(--font-script);
+    will-change: transform, opacity;
+    transition: color .3s, text-shadow .3s, filter .3s;
+    opacity: 0;
+  }
+  .word.rose { color: var(--rose-soft); }
+  .word.gold { color: var(--gold); }
+  .word.pearl { color: var(--text); }
+  .word.serif { font-family: var(--font-serif); font-style: italic; font-weight: 500; letter-spacing: .02em; }
+  .word:hover, .word.hot { color: #fff; filter: none !important; text-shadow: 0 0 18px rgba(244,114,182,.9), 0 0 42px rgba(190,24,93,.6); }
+
+  /* ============ КОНТЕНТ ============ */
+  main { position: relative; z-index: 3; pointer-events: none; }
+  main a, main button, .card { pointer-events: auto; }
+
+  section { min-height: 100vh; min-height: 100svh; display: grid; place-items: center; padding: var(--space-6) var(--space-2); }
+
+  .hero { text-align: center; align-content: end; padding-bottom: 8vh; }
+  .hero-text { position: relative; }
+  .hero-text::before { content: ""; position: absolute; inset: -12% -18%; z-index: -1; border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(11,6,16,.82), rgba(11,6,16,.5) 60%, transparent); }
+  .hero .kicker { font-family: var(--font-script); color: var(--gold); font-size: clamp(26px, 4vw, 38px); margin: 0 0 var(--space-1); }
+  .hero h1 {
+    margin: 0; font-weight: 300; font-size: clamp(38px, 7vw, 84px); line-height: 1.05; letter-spacing: -.01em;
+    background: linear-gradient(100deg, #fff 10%, var(--rose-soft) 45%, var(--gold) 70%, #fff 95%);
+    background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: sheen 9s linear infinite; text-wrap: balance;
+  }
+  @keyframes sheen { to { background-position: -220% 0; } }
+  .hero p { color: var(--text-muted); font-style: italic; font-size: clamp(18px, 2.2vw, 22px); margin: var(--space-2) auto 0; max-width: 36ch; }
+  .scroll-hint { margin-top: var(--space-4); display: inline-flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); font-size: 15px; letter-spacing: .2em; text-transform: uppercase; text-decoration: none; opacity: .8; }
+  .scroll-hint svg { animation: bob 2.2s ease-in-out infinite; }
+  @keyframes bob { 50% { transform: translateY(8px); } }
+
+  .card {
+    width: min(720px, 100%);
+    padding: clamp(28px, 6vw, 64px);
+    border-radius: 28px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(18px) saturate(1.3); -webkit-backdrop-filter: blur(18px) saturate(1.3);
+    box-shadow: 0 30px 80px -20px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.06);
+    cursor: auto;
+  }
+  .card h2, .section-title { font-family: var(--font-script); font-weight: 400; color: var(--rose-soft); font-size: clamp(34px, 5vw, 52px); line-height: 1.15; margin: 0 0 var(--space-3); text-align: center; }
+  .card p { font-size: clamp(19px, 2.1vw, 22px); line-height: 1.7; margin: 0 0 var(--space-3); color: var(--text); }
+  .card p:last-child { margin-bottom: 0; }
+  .card .sign { font-family: var(--font-script); color: var(--gold); text-align: right; font-size: 28px; }
+
+  /* проявление слов письма, как чернила */
+  .ink .w { display: inline-block; opacity: 0; filter: blur(6px); transform: translateY(.4em); transition: opacity .9s var(--ease-out), filter .9s var(--ease-out), transform .9s var(--ease-out); }
+  .ink.in .w { opacity: 1; filter: blur(0); transform: none; }
+
+  .thanks-wrap {
+    width: min(760px, 100%); text-align: center; padding: clamp(28px, 6vw, 56px) clamp(20px, 5vw, 56px);
+    border-radius: 28px; background: var(--glass); border: 1px solid var(--glass-border);
+    backdrop-filter: blur(18px) saturate(1.3); -webkit-backdrop-filter: blur(18px) saturate(1.3);
+    box-shadow: 0 30px 80px -20px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.06);
+  }
+  .thanks { list-style: none; margin: 0; padding: 0; }
+  .thanks li {
+    position: relative; padding: var(--space-3) 0;
+    font-size: clamp(22px, 3.2vw, 34px); font-style: italic; font-weight: 400; line-height: 1.35; color: var(--text);
+    opacity: 0; filter: blur(8px); transform: translateY(24px);
+    transition: opacity 1.1s var(--ease-out), filter 1.1s var(--ease-out), transform 1.1s var(--ease-out);
+    text-wrap: balance;
+  }
+  .thanks li.in { opacity: 1; filter: blur(0); transform: none; }
+  .thanks li span { font-family: var(--font-script); font-style: normal; color: var(--gold); margin-right: .15em; }
+  .thanks li + li::before {
+    content: ""; position: absolute; top: 0; left: 50%; width: 64px; height: 1px; transform: translateX(-50%);
+    background: linear-gradient(90deg, transparent, rgba(245,201,119,.55), transparent);
+  }
+  .thanks-wrap .section-title { margin-bottom: var(--space-2); }
+
+  .final { text-align: center; }
+  .final .big { font-family: var(--font-script); font-size: clamp(46px, 9vw, 110px); line-height: 1.05; margin: 0; color: var(--text); text-shadow: 0 0 40px rgba(244,114,182,.45); }
+  .final p { color: var(--text-muted); font-size: clamp(19px, 2.3vw, 24px); font-style: italic; max-width: 34ch; margin: var(--space-3) auto var(--space-4); }
+
+  .tg {
+    position: relative; overflow: hidden;
+    display: inline-flex; align-items: center; gap: 12px;
+    min-height: 56px; padding: 14px 30px; border-radius: 999px;
+    font-family: var(--font-serif); font-size: 21px; font-weight: 600; letter-spacing: .02em;
+    color: #fff; text-decoration: none;
+    background: linear-gradient(135deg, var(--wine), #db2777 50%, #e0457b);
+    box-shadow: 0 12px 40px -10px rgba(219,39,119,.7), inset 0 1px 0 rgba(255,255,255,.25);
+    transition: transform .25s var(--ease-out), box-shadow .25s;
+  }
+  .tg:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 18px 50px -10px rgba(219,39,119,.9), inset 0 1px 0 rgba(255,255,255,.3); }
+  .tg:active { transform: scale(.98); }
+  .tg::before { content: ""; position: absolute; top: 0; left: -60%; width: 40%; height: 100%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.45), transparent); transform: skewX(-20deg); animation: shine 3.6s ease-in-out infinite; }
+  @keyframes shine { 0%, 60% { left: -60%; } 100% { left: 130%; } }
+  .tg svg { width: 24px; height: 24px; flex: none; }
+  .tg-note { display: block; margin-top: var(--space-2); font-size: 15px; color: var(--text-muted); opacity: .75; }
+
+  footer { position: relative; z-index: 3; text-align: center; padding: 0 var(--space-2) var(--space-4); color: var(--text-muted); font-size: 15px; opacity: .6; pointer-events: none; }
+
+  :focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; border-radius: 12px; }
+
+  /* ============ ЗАСТАВКА ============ */
+  .intro {
+    position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; text-align: center; padding: var(--space-2);
+    background: radial-gradient(80% 60% at 50% 50%, rgba(42,13,42,.94), rgba(11,6,16,.99));
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    transition: opacity 1.2s var(--ease-out), visibility 1.2s;
+  }
+  .intro.gone { opacity: 0; visibility: hidden; }
+  .intro h2 { font-family: var(--font-script); font-weight: 400; font-size: clamp(40px, 8vw, 72px); margin: 0 0 var(--space-1); color: var(--text); }
+  .intro p { margin: 0 0 var(--space-4); color: var(--text-muted); font-style: italic; font-size: 20px; }
+  .open-btn {
+    position: relative; width: 112px; height: 112px; border-radius: 50%; border: 0; cursor: pointer;
+    display: grid; place-items: center; margin: 0 auto;
+    background: radial-gradient(circle at 35% 30%, #fb7185, var(--wine) 70%);
+    box-shadow: 0 0 0 0 rgba(244,114,182,.6), 0 20px 60px -10px rgba(190,24,93,.8);
+    animation: beat 1.3s ease-in-out infinite;
+    color: #fff;
+  }
+  .open-btn svg { width: 46px; height: 46px; }
+  .open-btn::before, .open-btn::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 1px solid rgba(244,114,182,.6); animation: ring 2.6s ease-out infinite; }
+  .open-btn::after { animation-delay: 1.3s; }
+  @keyframes ring { from { transform: scale(1); opacity: .9; } to { transform: scale(2.4); opacity: 0; } }
+  @keyframes beat { 0%, 100% { transform: scale(1); } 14% { transform: scale(1.1); } 28% { transform: scale(1); } 42% { transform: scale(1.07); } }
+  .intro small { display: block; margin-top: var(--space-3); color: var(--text-muted); opacity: .7; font-size: 15px; letter-spacing: .15em; text-transform: uppercase; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .2s !important; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body class="locked">
+
+<div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+<canvas id="fx" aria-hidden="true"></canvas>
+<div id="words" aria-hidden="true"></div>
+
+<!-- Заставка -->
+<div class="intro" id="intro">
+  <div>
+    <h2>Это для тебя</h2>
+    <p>Нажми на сердце</p>
+    <button class="open-btn" id="openBtn" aria-label="Открыть послание">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-10-9.3C.6 8.6 2.4 4.5 6.3 4.5c2.2 0 3.6 1.2 4.7 2.8 1.1-1.6 2.5-2.8 4.7-2.8 3.9 0 5.7 4.1 4.3 7.2C19.5 16.4 12 21 12 21z"/></svg>
+    </button>
+    <small>это займёт пару минут</small>
+  </div>
+</div>
+
+<main>
+  <!-- 1. Сердце -->
+  <section class="hero" id="hero">
+    <div class="hero-text calm" id="heroText">
+      <p class="kicker">для самой прекрасной</p>
+      <h1>Спасибо, что ты была<br>в моей жизни</h1>
+      <p>Слова летают вокруг — нажми на любое, и оно рассыплется сердечками.</p>
+      <a class="scroll-hint" href="#letter">
+        листай
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- 2. Письмо -->
+  <section id="letter">
+    <article class="card">
+      <h2>Несколько слов на прощание</h2>
+      <p class="ink">Я долго решался — и до конца так и не знаю, правильно ли поступаю. Может, если бы я потерпел ещё немного, мы бы встретились и просто поговорили. Не знаю. Но сейчас я хочу сказать одно: спасибо тебе за всё.</p>
+      <p class="ink">И ещё я очень хочу, чтобы ты знала: мне никогда не было на тебя всё равно. Просто после расставания я не хотел на тебя давить. Ты и так приняла тяжёлое решение и взяла на себя эту ношу — сказать «всё». Меньше всего на свете я хотел, чтобы ты из-за этого чувствовала себя виноватой. Я не хочу быть тем, кто мешает твоему счастью. Я хочу быть тем, кто ему искренне радуется — пусть даже издалека.</p>
+      <p class="ink">Ты правда лучшее, что было в моей жизни, и я никогда не устану это повторять. Каждый день рядом с тобой был для меня подарком.</p>
+      <p class="ink">Я очень хочу быть с тобой. Но там, где тебя не выбирают, оставаться слишком больно. Поэтому я отпускаю — не потому, что разлюбил, а потому, что так честнее.</p>
+      <p class="ink">Может быть, когда-нибудь мы встретимся и будем вспоминать всё это с теплотой. А может, даже попробуем снова — уже взрослее, учась на своих ошибках и учась по-настоящему слышать друг друга.</p>
+      <p class="ink">Я знаю, что многое делал неправильно, и этого уже не изменить. Но я хочу стать лучшим для тебя и делать тебя счастливой. Может, когда-нибудь в будущем у меня это получится.</p>
+      <p class="ink">Я буду скучать. И если когда-нибудь тебе станет трудно — знай: я всегда рядом.</p>
+      <p class="sign ink">С любовью</p>
+    </article>
+  </section>
+
+  <!-- 3. Спасибо -->
+  <section id="thanks">
+    <div class="thanks-wrap calm">
+      <h2 class="section-title">Спасибо тебе</h2>
+      <ul class="thanks">
+        <li><span>за</span> твой смех, который я узнаю из тысячи</li>
+        <li><span>за</span> тепло, которое ты дарила просто так</li>
+        <li><span>за</span> то, что была рядом, когда было трудно</li>
+        <li><span>за</span> то, что верила в меня</li>
+        <li><span>за</span> каждое «доброе утро» и «спокойной ночи»</li>
+        <li><span>за</span> то, что научила меня любить</li>
+        <li><span>за</span> всё, что было — и светлое, и сложное</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 4. Финал -->
+  <section class="final" id="final">
+    <div class="calm">
+      <h2 class="big">Будь счастлива</h2>
+      <p>Это не конец истории — просто новая глава. Я всегда буду желать тебе только добра.</p>
+      <a class="tg" id="tgLink" href="#" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3 18.7 19.5c-.2 1.1-.9 1.4-1.8.9l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-5 9.2-8.3c.4-.4-.1-.6-.6-.2L6.1 13.3 1.2 11.8c-1.1-.3-1.1-1.1.2-1.6L20.5 2.8c.9-.3 1.7.2 1.4 1.5z"/></svg>
+        Мой Telegram-канал
+      </a>
+      <span class="tg-note">канал, который я иногда вёл и куда записывал свои мысли</span>
+    </div>
+  </section>
+</main>
+
+<footer>сделано с любовью · навсегда в сердце</footer>
+
+<script>
+/* ================= НАСТРОЙКИ ================= */
+// Вставь сюда ссылку на свой Telegram-канал:
+const TELEGRAM_URL = "https://t.me/+lXFAskX1TKowNjky";
+
+const PHRASES = [
+  "Ты самый прекрасный человек", "Люблю тебя", "Что бы ни случилось — будь счастлива",
+  "Я всегда рядом", "Буду скучать", "Спасибо за всё", "Ты особенная",
+  "Ты — моё лучшее воспоминание", "Береги себя", "Улыбайся чаще",
+  "Ты достойна самого лучшего", "Ты сильная", "Ты мой свет",
+  "Твоя улыбка — лучшее, что я видел", "Мне было хорошо с тобой",
+  "Навсегда в моём сердце", "Пусть сбудутся все мечты", "Ты красивая",
+  "Спасибо, что была", "Живи ярко", "Ты заслуживаешь счастья",
+  "Я верю в тебя", "Ты прекрасна", "Нежность", "Тепло", "Навсегда",
+  "Обнимаю", "Будь счастлива", "Ты лучшая", "Не грусти", "Ты чудо"
+];
+/* ============================================ */
+
+document.getElementById("tgLink").href = TELEGRAM_URL;
+
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const rand = (a, b) => a + Math.random() * (b - a);
+const pick = arr => arr[(Math.random() * arr.length) | 0];
+let W = innerWidth, H = innerHeight;
+let opened = false;
+const mouse = { x: W / 2, y: H / 2, tx: W / 2, ty: H / 2, active: false };
+
+addEventListener("pointermove", e => { mouse.tx = e.clientX; mouse.ty = e.clientY; mouse.active = true; });
+addEventListener("pointerleave", () => { mouse.active = false; });
+
+/* ================= CANVAS: звёзды, сердце из частиц, сердечки ================= */
+const cv = document.getElementById("fx");
+const ctx = cv.getContext("2d");
+const HEART = new Path2D("M12 21s-7.5-4.6-10-9.3C.6 8.6 2.4 4.5 6.3 4.5c2.2 0 3.6 1.2 4.7 2.8 1.1-1.6 2.5-2.8 4.7-2.8 3.9 0 5.7 4.1 4.3 7.2C19.5 16.4 12 21 12 21z");
+const COLORS = ["244,114,182", "253,164,175", "245,201,119", "255,228,240", "219,39,119"];
+let stars = [], dots = [], floaters = [], bursts = [];
+const hero = document.getElementById("hero");
+const heroText = document.getElementById("heroText");
+
+function heartPoint(t) {
+  const x = 16 * Math.sin(t) ** 3;
+  const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+  return [x / 17, y / 17];
+}
+
+function resize() {
+  W = innerWidth; H = innerHeight;
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  cv.width = W * dpr; cv.height = H * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const n = Math.round((W * H) / 9000);
+  stars = Array.from({ length: Math.min(n, 220) }, () => ({ x: rand(0, W), y: rand(0, H), r: rand(.3, 1.3), ph: rand(0, 6.28), sp: rand(.5, 2) }));
+  const count = W < 600 ? 520 : 900;
+  if (dots.length !== count) {
+    dots = Array.from({ length: count }, (_, i) => {
+      const t = rand(0, Math.PI * 2);
+      let [ux, uy] = heartPoint(t);
+      if (i % 10 < 3) { const k = Math.sqrt(Math.random()) * .92; ux *= k; uy *= k; }   // заполнение
+      else { ux += rand(-.03, .03); uy += rand(-.03, .03); }                                // контур
+      return { ux, uy, x: rand(0, W), y: rand(0, H), vx: 0, vy: 0, s: rand(.6, 2), c: pick(COLORS), a: rand(.5, 1), ph: rand(0, 6.28) };
+    });
+  }
+}
+resize();
+addEventListener("resize", resize);
+
+function drawHeart(x, y, size, rot, color, alpha) {
+  ctx.save();
+  ctx.translate(x, y); ctx.rotate(rot); ctx.scale(size / 24, size / 24); ctx.translate(-12, -12);
+  ctx.fillStyle = `rgba(${color},${alpha})`;
+  ctx.fill(HEART);
+  ctx.restore();
+}
+
+function burst(x, y, amount = 22) {
+  if (reduce) amount = 6;
+  for (let i = 0; i < amount; i++) {
+    const a = rand(0, Math.PI * 2), sp = rand(1.5, 6);
+    bursts.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 1.5, life: 1, size: rand(8, 18), rot: rand(-.6, .6), vr: rand(-.08, .08), c: pick(COLORS) });
+  }
+}
+
+function beat(t) {
+  if (reduce) return 0;
+  const p = (t % 1.25) / 1.25;
+  return Math.exp(-((p - .05) ** 2) / .003) + .6 * Math.exp(-((p - .24) ** 2) / .003);
+}
+
+let last = performance.now(), floatTimer = 0, gather = 0;
+function frame(now) {
+  const dt = Math.min((now - last) / 16.67, 3); last = now;
+  const t = now / 1000;
+  mouse.x += (mouse.tx - mouse.x) * .12; mouse.y += (mouse.ty - mouse.y) * .12;
+  ctx.clearRect(0, 0, W, H);
+
+  // звёзды
+  for (const s of stars) {
+    const a = reduce ? .6 : .35 + .45 * Math.sin(t * s.sp + s.ph);
+    ctx.fillStyle = `rgba(255,236,246,${a})`;
+    ctx.fillRect(s.x, s.y, s.r, s.r);
+  }
+
+  ctx.globalCompositeOperation = "lighter";
+
+  // сердце из частиц
+  const r = hero.getBoundingClientRect();
+  if (r.bottom > 0) {
+    gather += ((opened ? 1 : 0) - gather) * .015 * dt;
+    // сердце занимает свободное место над текстом
+    const avail = Math.max(heroText.getBoundingClientRect().top - r.top, 160);
+    const size = Math.min(W * .34, avail / 1.95);
+    const cx = W / 2, cy = r.top + avail / 2 - size * .1;
+    const sc = 1 + .07 * beat(t);
+    const k = .015 + .07 * gather;
+    for (const d of dots) {
+      const wob = reduce ? 0 : Math.sin(t * 1.5 + d.ph) * 2;
+      const tx = cx + d.ux * size * sc + wob, ty = cy + d.uy * size * sc + wob;
+      d.vx += (tx - d.x) * k * dt; d.vy += (ty - d.y) * k * dt;
+      if (mouse.active) {
+        const dx = d.x - mouse.x, dy = d.y - mouse.y, dd = dx * dx + dy * dy;
+        if (dd < 6400) { const f = (1 - dd / 6400) * 3; const l = Math.sqrt(dd) || 1; d.vx += dx / l * f; d.vy += dy / l * f; }
+      }
+      d.vx *= .82; d.vy *= .82;
+      d.x += d.vx * dt; d.y += d.vy * dt;
+      ctx.fillStyle = `rgba(${d.c},${d.a * (.35 + .65 * gather)})`;
+      ctx.beginPath(); ctx.arc(d.x, d.y, d.s * (1 + .3 * beat(t)), 0, 6.283); ctx.fill();
+    }
+    // мягкое свечение в центре
+    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, size * 1.2);
+    g.addColorStop(0, `rgba(219,39,119,${.12 * gather * (1 + beat(t) * .5)})`);
+    g.addColorStop(1, "rgba(219,39,119,0)");
+    ctx.fillStyle = g; ctx.fillRect(cx - size * 1.3, cy - size * 1.3, size * 2.6, size * 2.6);
+  }
+
+  // поднимающиеся сердечки
+  if (!reduce && opened) {
+    floatTimer += dt;
+    if (floatTimer > 22 && floaters.length < 36) {
+      floatTimer = 0;
+      floaters.push({ x: rand(0, W), y: H + 20, size: rand(6, 16), sp: rand(.4, 1.1), ph: rand(0, 6.28), c: pick(COLORS), a: rand(.15, .45) });
+    }
+  }
+  for (let i = floaters.length - 1; i >= 0; i--) {
+    const f = floaters[i];
+    f.y -= f.sp * dt; const x = f.x + Math.sin(t + f.ph) * 18;
+    drawHeart(x, f.y, f.size, Math.sin(t + f.ph) * .3, f.c, f.a);
+    if (f.y < -30) floaters.splice(i, 1);
+  }
+
+  // взрывы сердечек
+  for (let i = bursts.length - 1; i >= 0; i--) {
+    const b = bursts[i];
+    b.vx *= .96; b.vy = b.vy * .96 - .04; b.x += b.vx * dt; b.y += b.vy * dt; b.rot += b.vr; b.life -= .014 * dt;
+    if (b.life <= 0) { bursts.splice(i, 1); continue; }
+    drawHeart(b.x, b.y, b.size * (.6 + b.life * .4), b.rot, b.c, b.life);
+  }
+  ctx.globalCompositeOperation = "source-over";
+
+  updateWords(dt, t);
+  requestAnimationFrame(frame);
+}
+
+/* ================= ЛЕТАЮЩИЕ СЛОВА ================= */
+const layer = document.getElementById("words");
+let words = [];
+const tones = ["rose", "rose", "pearl", "gold"];
+
+function placeWord(w, fromBottom) {
+  w.x = rand(-w.w * .3, W - w.w * .7);
+  w.y = fromBottom ? H + rand(10, 120) : rand(0, H);
+}
+
+function createWords() {
+  const total = W < 600 ? 16 : W < 1100 ? 24 : 32;
+  const pool = [...PHRASES].sort(() => Math.random() - .5);
+  for (let i = 0; i < total; i++) {
+    const el = document.createElement("span");
+    const depth = Math.random();                       // 0 — далеко, 1 — близко
+    el.className = "word " + pick(tones) + (Math.random() < .35 ? " serif" : "");
+    el.textContent = pool[i % pool.length];
+    const base = W < 600 ? 15 : 18;
+    el.style.fontSize = (base + depth * (W < 600 ? 14 : 24)) + "px";
+    el.style.filter = depth < .35 ? `blur(${(1 - depth) * 1.6}px)` : "none";
+    layer.appendChild(el);
+    const w = { el, depth, w: el.offsetWidth, h: el.offsetHeight, ph: rand(0, 6.28),
+      vx: rand(-.25, .25) * (.4 + depth), vy: -rand(.15, .45) * (.4 + depth),
+      op: .35 + depth * .6, fade: 0, delay: i * 140, born: performance.now(), slow: 1, hover: false };
+    placeWord(w, false);
+    el.addEventListener("pointerenter", () => w.hover = true);
+    el.addEventListener("pointerleave", () => w.hover = false);
+    el.addEventListener("click", e => {
+      e.stopPropagation();
+      burst(w.x + w.w / 2 + w.px, w.y + w.h / 2 + w.py, 28);
+      w.fade = 0; w.born = performance.now(); w.delay = 600;
+      el.textContent = pick(PHRASES); w.w = el.offsetWidth;
+      placeWord(w, true);
+    });
+    words.push(w);
+  }
+}
+
+// слова плавно гаснут, пролетая над главным текстом, чтобы его было легко читать
+const calmZones = [...document.querySelectorAll(".calm")];
+function updateWords(dt, t) {
+  const now = performance.now();
+  const zones = calmZones.map(z => z.getBoundingClientRect()).filter(z => z.bottom > 0 && z.top < H);
+  const mx = (mouse.x - W / 2), my = (mouse.y - H / 2);
+  for (const w of words) {
+    if (now - w.born < w.delay) continue;
+    w.fade = Math.min(1, w.fade + .01 * dt);
+    w.slow += ((w.hover ? .08 : 1) - w.slow) * .1;
+    if (!reduce) {
+      w.x += (w.vx + Math.sin(t * .6 + w.ph) * .15) * w.slow * dt;
+      w.y += w.vy * w.slow * dt;
+      if (w.y < -w.h - 40) placeWord(w, true);
+      if (w.x < -w.w - 40) w.x = W + 20;
+      if (w.x > W + 40) w.x = -w.w - 20;
+    }
+    w.px = -mx * w.depth * .04; w.py = -my * w.depth * .04;
+    const s = 1 + (reduce ? 0 : Math.sin(t * .8 + w.ph) * .03);
+    w.el.style.transform = `translate3d(${w.x + w.px}px, ${w.y + w.py}px, 0) scale(${s})`;
+    const cx = w.x + w.px + w.w / 2, cy = w.y + w.py + w.h / 2;
+    const covered = zones.some(z => cx > z.left - 30 && cx < z.right + 30 && cy > z.top - 20 && cy < z.bottom + 20);
+    w.dim = (w.dim ?? 1) + ((covered ? .12 : 1) - (w.dim ?? 1)) * .08 * dt;
+    w.el.style.opacity = (w.op * w.fade * w.dim).toFixed(3);
+  }
+}
+
+/* ================= КЛИКИ, ЗАСТАВКА, ПОЯВЛЕНИЯ ================= */
+addEventListener("click", e => { if (opened && !e.target.closest("a, button, .card")) burst(e.clientX, e.clientY); });
+
+document.getElementById("openBtn").addEventListener("click", e => {
+  e.stopPropagation();
+  opened = true;
+  const b = e.currentTarget.getBoundingClientRect();
+  burst(b.left + b.width / 2, b.top + b.height / 2, 60);
+  document.getElementById("intro").classList.add("gone");
+  document.body.classList.remove("locked");
+  createWords();
+});
+
+// разбить абзацы письма на слова для эффекта «чернил»
+document.querySelectorAll(".ink").forEach(p => {
+  const parts = p.textContent.trim().split(/\s+/);
+  p.innerHTML = parts.map((w, i) => `<span class="w" style="transition-delay:${i * 45}ms">${w}</span>`).join(" ");
+});
+
+const io = new IntersectionObserver(entries => {
+  entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
+}, { threshold: .35 });
+document.querySelectorAll(".ink").forEach(el => io.observe(el));
+document.querySelectorAll(".thanks li").forEach(el => io.observe(el));
+
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
